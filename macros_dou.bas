@@ -925,13 +925,29 @@ Sub indent()
 End Sub
 
 
-Sub formata_dou()
+Sub formata_dou_12()
     ' executa sub em sequência
     ' importante: acione os controles de revisão para verificar o que foi feito
     ' TODO: mudar curly quotes por simple quotes
     Application.ScreenUpdating = False
     calibri9
     converter_tabela_12
+    indent
+    tabs
+    ordinal
+    converte_rodape
+    Application.ScreenUpdating = True
+    'Todo incluir message box
+End Sub
+
+
+Sub formata_dou_25()
+    ' executa sub em sequência
+    ' importante: acione os controles de revisão para verificar o que foi feito
+    ' TODO: mudar curly quotes por simple quotes
+    Application.ScreenUpdating = False
+    calibri9
+    converter_tabela_25
     indent
     tabs
     ordinal
