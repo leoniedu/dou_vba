@@ -1,9 +1,25 @@
-Sub calibri9()
-    ' converte fonte para calibri 9
+Sub tamanho9()
+    ' converte fonte para tamanho 9
+    ' e converte a numeração automática para texto
     Selection.WholeStory
-    Selection.Font.Name = "Calibri"
+    Selection.Range.ListFormat.ConvertNumbersToText
+    '  essa parte de https://answers.microsoft.com/en-us/msoffice/forum/msoffice_word-mso_winother-mso_2016/ms-word-16-corrupted-bullet-and-numbering/38c049d5-7c02-4974-8e76-b046cf1916fe
+    'Macro originally created by Doug Robbins, MVP
+    'Customized by Stefan Blom, MVP, February 2020Dim LL As ListTemplate
+    'Dim i As ListLevel
+    'For Each LL In ActiveDocument.ListTemplates
+    ' For Each i In LL.ListLevels
+    '    If i.NumberStyle <> wdListNumberStyleBullet Then
+    '     i.Font.Name = "Calibri"
+    '     i.Font.Size = 9
+    '    End If
+    ' Next i
+    'Next LL
+    'Selection.Font.Name = "Calibri"
     Selection.Font.Size = 9
 End Sub
+
+
 
 Sub converter_tabela_12()
     '
@@ -14,10 +30,10 @@ Sub converter_tabela_12()
     For Each oTable In ActiveDocument.Tables
         With oTable
             oTable.Select
-            Selection.Font.Name = "Calibri"
             Selection.Font.Grow
             Selection.Font.Size = 9
-            Selection.Tables(1).Style = "Tabela com grade"
+            'Selection.Tables(1).Style = "Tabela com grade"
+            'Selection.Tables(1).Style = "Table Grid"
             With Selection.ParagraphFormat
                 .LeftIndent = CentimetersToPoints(0)
                 .RightIndent = CentimetersToPoints(0)
@@ -70,10 +86,10 @@ Sub converter_tabela_25()
     For Each oTable In ActiveDocument.Tables
         With oTable
             oTable.Select
-            Selection.Font.Name = "Calibri"
             Selection.Font.Grow
             Selection.Font.Size = 9
-            Selection.Tables(1).Style = "Tabela com grade"
+            'Selection.Tables(1).Style = "Tabela com grade"
+            'Selection.Tables(1).Style = "Table Grid"
             With Selection.ParagraphFormat
                 .LeftIndent = CentimetersToPoints(0)
                 .RightIndent = CentimetersToPoints(0)
@@ -117,14 +133,15 @@ Sub converte_rodape()
                 End With
                 Set RngTxt = .Reference
                 With RngTxt
-                    .InsertAfter " [nota " & i & "] "
+                    .InsertAfter " <<nota " & i & ">> "
                     .Collapse wdCollapseEnd
-                    .InsertAfter " [\nota " & i & "] "
+                    .InsertAfter " <<\nota " & i & ">> "
                     .Collapse wdCollapseStart
                     .FormattedText = RngNt.FormattedText
                 End With
                 .Delete
             End With
+            MsgBox "Nota de rodapé convertida."
         Next
     End With
 End Sub
@@ -139,381 +156,19 @@ Sub nova_linha_tabela()
     Selection.Borders(wdBorderHorizontal).LineStyle = wdLineStyleNone
 End Sub
 
-Sub SymbolToUnicode()
-    ' ver também https://www.stat.auckland.ac.nz/~paul/R/CM/AdobeSym.html
-    ' Source https://groups.google.com/forum/#!topic/microsoft.public.word.printingfonts/pPtEuYqrlvQ
-    ' Select document or range before running the macro
+Sub utf_para_simbolo()
     Dim myFont As String
     Dim myCharNum As Long
-    Dim myRange As Range
     Dim myChar As Range
     Dim i As Long, CharCount As Long
-    Set myRange = Selection.Range.Duplicate
-    CharCount = myRange.ComputeStatistics(wdStatisticCharacters)
-    For Each myChar In myRange.Characters
-        i = i + 1
-        If myChar.Font.Name = "Symbol" Then
-            myCharNum = AscW(myChar.Text) And &HFFFF&
-            ' Decorative Fonts are mapped to a
-            ' "private use" code page starting at &HF000
-            myCharNum = myCharNum - &HF000&
-            myChar.Font.Name = myChar.Style.Font.Name
-            Select Case myCharNum
-            Case &H22                            ' # FOR ALL
-                myChar.Text = ChrW(&H2200)
-            Case &H24                            ' # THERE EXISTS
-                myChar.Text = ChrW(&H2203)
-            Case &H27                            ' # CONTAINS AS MEMBER
-                myChar.Text = ChrW(&H220B)
-            Case &H2A                            ' # ASTERISK OPERATOR
-                myChar.Text = ChrW(&H2217)
-            Case &H2D                            ' # MINUS SIGN
-                myChar.Text = ChrW(&H2212)
-            Case &H40                            ' # APPROXIMATELY EQUAL TO
-                myChar.Text = ChrW(&H2245)
-            Case &H41                            ' # GREEK CAPITAL LETTER ALPHA
-                myChar.Text = ChrW(&H391)
-            Case &H42                            ' # GREEK CAPITAL LETTER BETA
-                myChar.Text = ChrW(&H392)
-            Case &H43                            ' # GREEK CAPITAL LETTER CHI
-                myChar.Text = ChrW(&H3A7)
-            Case &H44                            ' # GREEK CAPITAL LETTER DELTA
-                myChar.Text = ChrW(&H394)
-            Case &H44                            ' # INCREMENT
-                myChar.Text = ChrW(&H2206)
-            Case &H45                            ' # GREEK CAPITAL LETTER EPSILON
-                myChar.Text = ChrW(&H395)
-            Case &H46                            ' # GREEK CAPITAL LETTER PHI
-                myChar.Text = ChrW(&H3A6)
-            Case &H47                            ' # GREEK CAPITAL LETTER GAMMA
-                myChar.Text = ChrW(&H393)
-            Case &H48                            ' # GREEK CAPITAL LETTER ETA
-                myChar.Text = ChrW(&H397)
-            Case &H49                            ' # GREEK CAPITAL LETTER IOTA
-                myChar.Text = ChrW(&H399)
-            Case &H4A                            ' # GREEK THETA SYMBOL
-                myChar.Text = ChrW(&H3D1)
-            Case &H4B                            ' # GREEK CAPITAL LETTER KAPPA
-                myChar.Text = ChrW(&H39A)
-            Case &H4C                            ' # GREEK CAPITAL LETTER LAMDA
-                myChar.Text = ChrW(&H39B)
-            Case &H4D                            ' # GREEK CAPITAL LETTER MU
-                myChar.Text = ChrW(&H39C)
-            Case &H4E                            ' # GREEK CAPITAL LETTER NU
-                myChar.Text = ChrW(&H39D)
-            Case &H4F                            ' # GREEK CAPITAL LETTER OMICRON
-                myChar.Text = ChrW(&H39F)
-            Case &H50                            ' # GREEK CAPITAL LETTER PI
-                myChar.Text = ChrW(&H3A0)
-            Case &H51                            ' # GREEK CAPITAL LETTER THETA
-                myChar.Text = ChrW(&H398)
-            Case &H52                            ' # GREEK CAPITAL LETTER RHO
-                myChar.Text = ChrW(&H3A1)
-            Case &H53                            ' # GREEK CAPITAL LETTER SIGMA
-                myChar.Text = ChrW(&H3A3)
-            Case &H54                            ' # GREEK CAPITAL LETTER TAU
-                myChar.Text = ChrW(&H3A4)
-            Case &H55                            ' # GREEK CAPITAL LETTER UPSILON
-                myChar.Text = ChrW(&H3A5)
-            Case &H56                            ' # GREEK SMALL LETTER FINAL SIGMA
-                myChar.Text = ChrW(&H3C2)
-            Case &H57                            ' # GREEK CAPITAL LETTER OMEGA
-                myChar.Text = ChrW(&H3A9)
-            Case &H57                            ' # OHM SIGN
-                myChar.Text = ChrW(&H2126)
-            Case &H58                            ' # GREEK CAPITAL LETTER XI
-                myChar.Text = ChrW(&H39E)
-            Case &H59                            ' # GREEK CAPITAL LETTER PSI
-                myChar.Text = ChrW(&H3A8)
-            Case &H5A                            ' # GREEK CAPITAL LETTER ZETA
-                myChar.Text = ChrW(&H396)
-            Case &H5C                            ' # THEREFORE
-                myChar.Text = ChrW(&H2234)
-            Case &H5E                            ' # UP TACK
-                myChar.Text = ChrW(&H22A5)
-            Case &H60                            ' # RADICAL EXTENDER
-                myChar.Text = ChrW(&HF8E5)
-            Case &H61                            ' # GREEK SMALL LETTER ALPHA
-                myChar.Text = ChrW(&H3B1)
-            Case &H62                            ' # GREEK SMALL LETTER BETA
-                myChar.Text = ChrW(&H3B2)
-            Case &H63                            ' # GREEK SMALL LETTER CHI
-                myChar.Text = ChrW(&H3C7)
-            Case &H64                            ' # GREEK SMALL LETTER DELTA
-                myChar.Text = ChrW(&H3B4)
-            Case &H65                            ' # GREEK SMALL LETTER EPSILON
-                myChar.Text = ChrW(&H3B5)
-            Case &H66                            ' # GREEK SMALL LETTER PHI
-                myChar.Text = ChrW(&H3C6)
-            Case &H67                            ' # GREEK SMALL LETTER GAMMA
-                myChar.Text = ChrW(&H3B3)
-            Case &H68                            ' # GREEK SMALL LETTER ETA
-                myChar.Text = ChrW(&H3B7)
-            Case &H69                            ' # GREEK SMALL LETTER IOTA
-                myChar.Text = ChrW(&H3B9)
-            Case &H6A                            ' # GREEK PHI SYMBOL
-                myChar.Text = ChrW(&H3D5)
-            Case &H6B                            ' # GREEK SMALL LETTER KAPPA
-                myChar.Text = ChrW(&H3BA)
-            Case &H6C                            ' # GREEK SMALL LETTER LAMDA
-                myChar.Text = ChrW(&H3BB)
-            Case &H6D                            ' # MICRO SIGN
-                myChar.Text = ChrW(&HB5)
-            Case &H6D                            ' # GREEK SMALL LETTER MU
-                myChar.Text = ChrW(&H3BC)
-            Case &H6E                            ' # GREEK SMALL LETTER NU
-                myChar.Text = ChrW(&H3BD)
-            Case &H6F                            ' # GREEK SMALL LETTER OMICRON
-                myChar.Text = ChrW(&H3BF)
-            Case &H70                            ' # GREEK SMALL LETTER PI
-                myChar.Text = ChrW(&H3C0)
-            Case &H71                            ' # GREEK SMALL LETTER THETA
-                myChar.Text = ChrW(&H3B8)
-            Case &H72                            ' # GREEK SMALL LETTER RHO
-                myChar.Text = ChrW(&H3C1)
-            Case &H73                            ' # GREEK SMALL LETTER SIGMA
-                myChar.Text = ChrW(&H3C3)
-            Case &H74                            ' # GREEK SMALL LETTER TAU
-                myChar.Text = ChrW(&H3C4)
-            Case &H75                            ' # GREEK SMALL LETTER UPSILON
-                myChar.Text = ChrW(&H3C5)
-            Case &H76                            ' # GREEK PI SYMBOL
-                myChar.Text = ChrW(&H3D6)
-            Case &H77                            ' # GREEK SMALL LETTER OMEGA
-                myChar.Text = ChrW(&H3C9)
-            Case &H78                            ' # GREEK SMALL LETTER XI
-                myChar.Text = ChrW(&H3BE)
-            Case &H79                            ' # GREEK SMALL LETTER PSI
-                myChar.Text = ChrW(&H3C8)
-            Case &H7A                            ' # GREEK SMALL LETTER ZETA
-                myChar.Text = ChrW(&H3B6)
-            Case &H7E                            ' # TILDE OPERATOR
-                myChar.Text = ChrW(&H223C)
-            Case &HA0                            ' # EURO SIGN
-                myChar.Text = ChrW(&H20AC)
-            Case &HA1                            ' # GREEK UPSILON WITH HOOK SYMBOL
-                myChar.Text = ChrW(&H3D2)
-            Case &HA2                            ' # PRIME
-                myChar.Text = ChrW(&H2032)
-            Case &HA3                            ' # LESS-THAN OR EQUAL TO
-                myChar.Text = ChrW(&H2264)
-            Case &HA4                            ' # FRACTION SLASH
-                myChar.Text = ChrW(&H2044)
-            Case &HA4                            ' # DIVISION SLASH
-                myChar.Text = ChrW(&H2215)
-            Case &HA5                            ' # INFINITY
-                myChar.Text = ChrW(&H221E)
-            Case &HA6                            ' # LATIN SMALL LETTER F WITH HOOK
-                myChar.Text = ChrW(&H192)
-            Case &HA7                            ' # BLACK CLUB SUIT
-                myChar.Text = ChrW(&H2663)
-            Case &HA8                            ' # BLACK DIAMOND SUIT
-                myChar.Text = ChrW(&H2666)
-            Case &HA9                            ' # BLACK HEART SUIT
-                myChar.Text = ChrW(&H2665)
-            Case &HAA                            ' # BLACK SPADE SUIT
-                myChar.Text = ChrW(&H2660)
-            Case &HAB                            ' # LEFT RIGHT ARROW
-                myChar.Text = ChrW(&H2194)
-            Case &HAC                            ' # LEFTWARDS ARROW
-                myChar.Text = ChrW(&H2190)
-            Case &HAD                            ' # UPWARDS ARROW
-                myChar.Text = ChrW(&H2191)
-            Case &HAE                            ' # RIGHTWARDS ARROW
-                myChar.Text = ChrW(&H2192)
-            Case &HAF                            ' # DOWNWARDS ARROW
-                myChar.Text = ChrW(&H2193)
-            Case &HB2                            ' # DOUBLE PRIME
-                myChar.Text = ChrW(&H2033)
-            Case &HB3                            ' # GREATER-THAN OR EQUAL TO
-                myChar.Text = ChrW(&H2265)
-            Case &HB4                            ' # MULTIPLICATION SIGN
-                myChar.Text = ChrW(&HD7)
-            Case &HB5                            ' # PROPORTIONAL TO
-                myChar.Text = ChrW(&H221D)
-            Case &HB6                            ' # PARTIAL DIFFERENTIAL
-                myChar.Text = ChrW(&H2202)
-            Case &HB7                            ' # BULLET
-                myChar.Text = ChrW(&H2022)
-            Case &HB8                            ' # DIVISION SIGN
-                myChar.Text = ChrW(&HF7)
-            Case &HB9                            ' # NOT EQUAL TO
-                myChar.Text = ChrW(&H2260)
-            Case &HBA                            ' # IDENTICAL TO
-                myChar.Text = ChrW(&H2261)
-            Case &HBB                            ' # ALMOST EQUAL TO
-                myChar.Text = ChrW(&H2248)
-            Case &HBC                            ' # HORIZONTAL ELLIPSIS
-                myChar.Text = ChrW(&H2026)
-            Case &HBD                            ' # VERTICAL ARROW EXTENDER
-                myChar.Text = ChrW(&HF8E6)
-            Case &HBE                            ' # HORIZONTAL ARROW EXTENDER
-                myChar.Text = ChrW(&HF8E7)
-            Case &HBF                            ' # DOWNWARDS ARROW WITH CORNER LEFTWARDS
-                myChar.Text = ChrW(&H21B5)
-            Case &HC0                            ' # ALEF SYMBOL
-                myChar.Text = ChrW(&H2135)
-            Case &HC1                            ' # BLACK-LETTER CAPITAL I
-                myChar.Text = ChrW(&H2111)
-            Case &HC2                            ' # BLACK-LETTER CAPITAL R
-                myChar.Text = ChrW(&H211C)
-            Case &HC3                            ' # SCRIPT CAPITAL P
-                myChar.Text = ChrW(&H2118)
-            Case &HC4                            ' # CIRCLED TIMES
-                myChar.Text = ChrW(&H2297)
-            Case &HC5                            ' # CIRCLED PLUS
-                myChar.Text = ChrW(&H2295)
-            Case &HC6                            ' # EMPTY SET
-                myChar.Text = ChrW(&H2205)
-            Case &HC7                            ' # INTERSECTION
-                myChar.Text = ChrW(&H2229)
-            Case &HC8                            ' # UNION
-                myChar.Text = ChrW(&H222A)
-            Case &HC9                            ' # SUPERSET OF
-                myChar.Text = ChrW(&H2283)
-            Case &HCA                            ' # SUPERSET OF OR EQUAL TO
-                myChar.Text = ChrW(&H2287)
-            Case &HCB                            ' # NOT A SUBSET OF
-                myChar.Text = ChrW(&H2284)
-            Case &HCC                            ' # SUBSET OF
-                myChar.Text = ChrW(&H2282)
-            Case &HCD                            ' # SUBSET OF OR EQUAL TO
-                myChar.Text = ChrW(&H2286)
-            Case &HCE                            ' # ELEMENT OF
-                myChar.Text = ChrW(&H2208)
-            Case &HCF                            ' # NOT AN ELEMENT OF
-                myChar.Text = ChrW(&H2209)
-            Case &HD0                            ' # ANGLE
-                myChar.Text = ChrW(&H2220)
-            Case &HD1                            ' # NABLA
-                myChar.Text = ChrW(&H2207)
-            Case &HD2                            ' # REGISTERED SIGN SERIF
-                myChar.Text = ChrW(&HF6DA)
-            Case &HD3                            ' # COPYRIGHT SIGN SERIF
-                myChar.Text = ChrW(&HF6D9)
-            Case &HD4                            ' # TRADE MARK SIGN SERIF
-                myChar.Text = ChrW(&HF6DB)
-            Case &HD5                            ' # N-ARY PRODUCT
-                myChar.Text = ChrW(&H220F)
-            Case &HD6                            ' # SQUARE ROOT
-                myChar.Text = ChrW(&H221A)
-            Case &HD7                            ' # DOT OPERATOR
-                myChar.Text = ChrW(&H22C5)
-            Case &HD8                            ' # NOT SIGN
-                myChar.Text = ChrW(&HAC)
-            Case &HD9                            ' # LOGICAL AND
-                myChar.Text = ChrW(&H2227)
-            Case &HDA                            ' # LOGICAL OR
-                myChar.Text = ChrW(&H2228)
-            Case &HDB                            ' # LEFT RIGHT DOUBLE ARROW
-                myChar.Text = ChrW(&H21D4)
-            Case &HDC                            ' # LEFTWARDS DOUBLE ARROW
-                myChar.Text = ChrW(&H21D0)
-            Case &HDD                            ' # UPWARDS DOUBLE ARROW
-                myChar.Text = ChrW(&H21D1)
-            Case &HDE                            ' # RIGHTWARDS DOUBLE ARROW
-                myChar.Text = ChrW(&H21D2)
-            Case &HDF                            ' # DOWNWARDS DOUBLE ARROW
-                myChar.Text = ChrW(&H21D3)
-            Case &HE0                            ' # LOZENGE
-                myChar.Text = ChrW(&H25CA)
-            Case &HE1                            ' # LEFT-POINTING ANGLE BRACKET
-                myChar.Text = ChrW(&H2329)
-            Case &HE2                            ' # REGISTERED SIGN SANS SERIF
-                myChar.Text = ChrW(&HF8E8)
-            Case &HE3                            ' # COPYRIGHT SIGN SANS SERIF
-                myChar.Text = ChrW(&HF8E9)
-            Case &HE4                            ' # TRADE MARK SIGN SANS SERIF
-                myChar.Text = ChrW(&HF8EA)
-            Case &HE5                            ' # N-ARY SUMMATION
-                myChar.Text = ChrW(&H2211)
-            Case &HE6                            ' # LEFT PAREN TOP
-                myChar.Text = ChrW(&HF8EB)
-            Case &HE7                            ' # LEFT PAREN EXTENDER
-                myChar.Text = ChrW(&HF8EC)
-            Case &HE8                            ' # LEFT PAREN BOTTOM
-                myChar.Text = ChrW(&HF8ED)
-            Case &HE9                            ' # LEFT SQUARE BRACKET TOP
-                myChar.Text = ChrW(&HF8EE)
-            Case &HEA                            ' # LEFT SQUARE BRACKET EXTENDER
-                myChar.Text = ChrW(&HF8EF)
-            Case &HEB                            ' # LEFT SQUARE BRACKET BOTTOM
-                myChar.Text = ChrW(&HF8F0)
-            Case &HEC                            ' # LEFT CURLY BRACKET TOP
-                myChar.Text = ChrW(&HF8F1)
-            Case &HED                            ' # LEFT CURLY BRACKET MID
-                myChar.Text = ChrW(&HF8F2)
-            Case &HEE                            ' # LEFT CURLY BRACKET BOTTOM
-                myChar.Text = ChrW(&HF8F3)
-            Case &HEF                            ' # CURLY BRACKET EXTENDER
-                myChar.Text = ChrW(&HF8F4)
-            Case &HF1                            ' # RIGHT-POINTING ANGLE BRACKET
-                myChar.Text = ChrW(&H232A)
-            Case &HF2                            ' # INTEGRAL
-                myChar.Text = ChrW(&H222B)
-            Case &HF3                            ' # TOP HALF INTEGRAL
-                myChar.Text = ChrW(&H2320)
-            Case &HF4                            ' # INTEGRAL EXTENDER
-                myChar.Text = ChrW(&HF8F5)
-            Case &HF5                            ' # BOTTOM HALF INTEGRAL
-                myChar.Text = ChrW(&H2321)
-            Case &HF6                            ' # RIGHT PAREN TOP
-                myChar.Text = ChrW(&HF8F6)
-            Case &HF7                            ' # RIGHT PAREN EXTENDER
-                myChar.Text = ChrW(&HF8F7)
-            Case &HF8                            ' # RIGHT PAREN BOTTOM
-                myChar.Text = ChrW(&HF8F8)
-            Case &HF9                            ' # RIGHT SQUARE BRACKET TOP
-                myChar.Text = ChrW(&HF8F9)
-            Case &HFA                            ' # RIGHT SQUARE BRACKET EXTENDER
-                myChar.Text = ChrW(&HF8FA)
-            Case &HFB                            ' # RIGHT SQUARE BRACKET BOTTOM
-                myChar.Text = ChrW(&HF8FB)
-            Case &HFC                            ' # RIGHT CURLY BRACKET TOP
-                myChar.Text = ChrW(&HF8FC)
-            Case &HFD                            ' # RIGHT CURLY BRACKET MID
-                myChar.Text = ChrW(&HF8FD)
-            Case &HFE                            ' # RIGHT CURLY BRACKET BOTTOM
-                myChar.Text = ChrW(&HF8FE)
-            End Select
-            i = i - 1
-        End If
-    Next myChar
-    myRange.Select
-End Sub
-
-Public Function IsInArray(stringToBeFound As String, arr As Variant) As Boolean
-    Dim i
-    For i = LBound(arr) To UBound(arr)
-        If arr(i) = stringToBeFound Then
-            IsInArray = True
-            Exit Function
-        End If
-    Next i
-    IsInArray = False
-
-End Function
-
-Sub UnicodeToSymbol()
-    ' ver também https://www.stat.auckland.ac.nz/~paul/R/CM/AdobeSym.html
-    ' Source https://groups.google.com/forum/#!topic/microsoft.public.word.printingfonts/pPtEuYqrlvQ
-    ' Select document or range before running the macro
-    Dim myFont As String
-    Dim myCharNum As Long
-    Dim myRange As Range
-    Dim myChar As Range
-    Dim i As Long, CharCount As Long
-    Set myRange = Selection.Range.Duplicate
-    CharCount = myRange.ComputeStatistics(wdStatisticCharacters)
-    For Each myChar In myRange.Characters
+    For Each myChar In ActiveDocument.Characters
         i = i + 1
         If Not (myChar.Font.Name = "Symbol") Then
+            myChar.Font.Name = "Calibri"
             mycharN = AscW(myChar.Text)
             myCharNum = mycharN And &HFFFF&
-            ' Decorative Fonts are mapped to a
-            ' "private use" code page starting at &HF000
-            ' myCharNum = myCharNum - &HF000&
             If (mycharN > 879 And mycharN < 1024) Or (mycharN > 2200) Or (mycharN = 215) Then
+                original = myChar.Text
                 Select Case myCharNum
                 Case &H22                        ' # FOR ALL
                     myChar.Text = ChrW(&H2200)
@@ -645,8 +300,9 @@ Sub UnicodeToSymbol()
                     myChar.Text = ChrW(&H7A)
                 Case &H223C                      ' # TILDE OPERATOR
                     myChar.Text = ChrW(&H7E)
-                Case &H20AC                      ' # EURO SIGN
-                    myChar.Text = ChrW(&HA0)
+                'Case &H20AC                      ' # EURO SIGN (checar se funciona)
+                '    myChar.Text = ChrW(&HA0)
+                '    myChar.Shading.BackgroundPatternColor = RGB(255, 255, 0)
                 Case &H3D2                       ' # GREEK UPSILON WITH HOOK SYMBOL
                     myChar.Text = ChrW(&HA1)
                 Case &H2032                      ' # PRIME
@@ -836,13 +492,17 @@ Sub UnicodeToSymbol()
                 Case &H3017                      ' # right parentheses like cumbria math
                     myChar.Text = ")"
                 End Select
-                myChar.Font.Name = "Symbol"
+                If myChar.Text <> original Then
+                    myChar.Font.Name = "Symbol"
+                    'myChar.Shading.BackgroundPatternColor = RGB(255, 255, 0)
+                Else
+                    myChar.Font.Name = "Calibri"
+                End If
             End If
-            i = i - 1
-        End If
+            End If
     Next myChar
-    myRange.Select
 End Sub
+
 
 Sub ordinal()
     '
@@ -911,6 +571,85 @@ Sub tabs()
     Selection.Find.Execute Replace:=wdReplaceAll
 End Sub
 
+
+Sub equacoes()
+    Dim MathObj As Object
+    For Each MathObj In ActiveDocument.OMaths
+        MathObj.Remove
+        MsgBox "Equação encontrada e convertida para texto."
+    Next
+End Sub
+
+Sub imagens()
+    Dim i As Long
+    i = 1
+    For Each myStoryRange In ActiveDocument.StoryRanges
+        With myStoryRange.Find
+            .ClearFormatting
+            .Replacement.ClearFormatting
+            .Forward = True
+            .Wrap = wdFindContinue
+            .Text = "^g"
+            Do
+                .Replacement.Text = "<<IMAGEM " & i & " AQUI>>"
+                .Execute Replace:=wdReplaceOne
+                If .Found = True Then
+                    i = i + 1
+                    MsgBox "Imagem encontrada e substituida por " & .Replacement.Text
+                End If
+            Loop Until .Found = False
+        End With
+    Next myStoryRange
+End Sub
+
+
+Sub diacriticos()
+Dim i As Long
+Dim ArrFnd As Variant
+Dim ArrRepAgudo As Variant, ArrRepGrave As Variant
+Dim ArrRepCirc As Variant, ArrRepTilde As Variant
+ArrFnd = Array("a", "e", "i", "o", "u")
+ArrRepGrave = Array("à", "è", "ì", "ò", "ù")
+ArrRepAgudo = Array("á", "é", "í", "ó", "ú")
+ArrRepCirc = Array("â", "ê", "î", "ô", "û")
+ArrRepTilde = Array("ã", "~e", "~i", "õ", "~u")
+For Each myStoryRange In ActiveDocument.StoryRanges
+    With myStoryRange.Find
+    .ClearFormatting
+    .Replacement.ClearFormatting
+    .Forward = True
+    .Wrap = wdFindContinue
+    For i = 0 To 4
+    ' agudo
+    .Text = ArrFnd(i) & ChrW(769)
+    .Replacement.Text = ArrRepAgudo(i)
+    .Execute Replace:=wdReplaceAll
+    ' agudo vietnamita
+    .Text = ArrFnd(i) & ChrW(341)
+    .Replacement.Text = ArrRepAgudo(i)
+    .Execute Replace:=wdReplaceAll
+    ' grave
+    .Text = ArrFnd(i) & ChrW(768)
+    .Replacement.Text = ArrRepGrave(i)
+    .Execute Replace:=wdReplaceAll
+    ' grave vietnamita
+    .Text = ArrFnd(i) & ChrW(340)
+    .Replacement.Text = ArrRepGrave(i)
+    .Execute Replace:=wdReplaceAll
+    ' Tilde
+    .Text = ArrFnd(i) & ChrW(771)
+    .Replacement.Text = ArrRepTilde(i)
+    .Execute Replace:=wdReplaceAll
+    ' Circunflexo
+    .Text = ArrFnd(i) & ChrW(770)
+    .Replacement.Text = ArrRepCirc(i)
+    .Execute Replace:=wdReplaceAll
+    Next i
+    End With
+Next myStoryRange
+End Sub
+
+
 Sub indent()
     ' formata  recuo máximo
     Dim sDefaultIndent As Single
@@ -925,33 +664,103 @@ Sub indent()
 End Sub
 
 
-Sub formata_dou_12()
+Sub formata_dou()
     ' executa sub em sequência
     ' importante: acione os controles de revisão para verificar o que foi feito
     ' TODO: mudar curly quotes por simple quotes
     Application.ScreenUpdating = False
-    calibri9
-    converter_tabela_12
-    indent
+    imagens
+    equacoes
+    converte_rodape
+    tamanho9
+    indent 'verificar se está funcionando
     tabs
     ordinal
-    converte_rodape
+    diacriticos
+    utf_para_simbolo
+    tabelas_sobrepostas
+    converter_tabela_12
     Application.ScreenUpdating = True
     'Todo incluir message box
 End Sub
 
 
-Sub formata_dou_25()
-    ' executa sub em sequência
-    ' importante: acione os controles de revisão para verificar o que foi feito
-    ' TODO: mudar curly quotes por simple quotes
-    Application.ScreenUpdating = False
-    calibri9
-    converter_tabela_25
-    indent
-    tabs
-    ordinal
-    converte_rodape
-    Application.ScreenUpdating = True
-    'Todo incluir message box
+Sub rtf2docx()
+'
+' rtf2docx Macro
+'
+'
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "Select folder..."
+        .Show
+        myFolder = .SelectedItems.Item(1)
+    End With
+
+    myWildCard = InputBox(prompt:="Enter wild card...")
+
+    myDocs = Dir(myFolder & "\" & myWildCard)
+
+    While myDocs <> ""
+        Documents.Open FileName:=myFolder & "\" & myDocs, ConfirmConversions:=False
+        ActiveDocument.SaveAs2 FileName:=myFolder & "\" & Left(myDocs, Len(myDocs) - 4) & ".docx", _
+            FileFormat:=wdFormatDocumentDefault, _
+            CompatibilityMode:=wdCurrent
+        ActiveDocument.Close SaveChanges:=False
+        myDocs = Dir()
+    Wend
+End Sub
+
+Sub deleteLinks()
+    Dim oField As Field
+    For Each oField In ActiveDocument.Fields
+        If oField.Type = wdFieldHyperlink Then
+          oField.Unlink
+        End If
+    Next
+  Set oField = Nothing
+End Sub
+
+Sub reformata_tabela_12()
+'
+' reformata_tabela_12 Macro
+'
+'
+    Selection.Tables(1).Select
+    Selection.Copy
+    Selection.Delete
+    Selection.PasteAndFormat (wdFormatPlainText)
+    Selection.ConvertToTable Separator:=wdSeparateByTabs, AutoFitBehavior:=wdAutoFitFixed
+    With Selection.Tables(1)
+        .Style = "Table Grid"
+        .ApplyStyleHeadingRows = True
+        .ApplyStyleLastRow = False
+        .ApplyStyleFirstColumn = True
+        .ApplyStyleLastColumn = False
+    End With
+End Sub
+
+Sub tabelas_sobrepostas()
+    ' ressalta em amarelo as tabelas sobrepostas (nested tables)
+    ' baseado em https://stackoverflow.com/a/39329012/143377
+    Dim DocumentBodyTable As Table
+    Dim NestedTable As Table
+    For Each DocumentBodyTable In ActiveDocument.Tables
+        For Each NestedTable In DocumentBodyTable.Tables
+                NestedTable.Shading.BackgroundPatternColor = RGB(255, 114, 118)
+            MsgBox "Tabela sobreposta encontrada e marcada em vermelho."
+        Next NestedTable
+    Next DocumentBodyTable
+End Sub
+
+Sub tabelas_sobrepostas_para_texto()
+    ' ressalta em amarelo as tabelas sobrepostas (nested tables)
+    ' baseado em https://stackoverflow.com/a/39329012/143377
+    Dim DocumentBodyTable As Table
+    Dim NestedTable As Table
+    For Each DocumentBodyTable In ActiveDocument.Tables
+        For Each NestedTable In DocumentBodyTable.Tables
+            NestedTable.Rows.ConvertToText
+            MsgBox "Tabela sobreposta encontrada e convertida para texto."
+        Next NestedTable
+    Next DocumentBodyTable
 End Sub
