@@ -673,7 +673,7 @@ Sub formata_dou()
     equacoes
     converte_rodape
     tamanho9
-    indent 'verificar se está funcionando
+    'indent 'verificar se está funcionando
     tabs
     ordinal
     diacriticos
