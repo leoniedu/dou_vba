@@ -79,11 +79,10 @@ End Sub
 
 Sub converter_tabela_25()
     '
-    ' converter_tabela_25 Macro
-    ' converte tabela para rtf 12cm ou 25cm
+    ' converte tabela SOMENTE DA SELEÇÃO para 25cm de largura
     Dim iTblWidth As Integer
     Dim iCount As Integer
-    For Each oTable In ActiveDocument.Tables
+    For Each oTable In Selection.Tables
         With oTable
             oTable.Select
             Selection.Font.Grow
@@ -168,6 +167,7 @@ Sub utf_para_simbolo()
             mycharN = AscW(myChar.Text)
             myCharNum = mycharN And &HFFFF&
             If (mycharN > 879 And mycharN < 1024) Or (mycharN > 2200) Or (mycharN = 215) Then
+                MsgBox i
                 original = myChar.Text
                 Select Case myCharNum
                 Case &H22                        ' # FOR ALL
