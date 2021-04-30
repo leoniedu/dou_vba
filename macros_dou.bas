@@ -1,25 +1,18 @@
-Sub tamanho9()
-    ' converte fonte para tamanho 9
-    ' e converte a numeração automática para texto
+Sub calibri9()
     Selection.WholeStory
     Selection.Range.ListFormat.ConvertNumbersToText
-    '  essa parte de https://answers.microsoft.com/en-us/msoffice/forum/msoffice_word-mso_winother-mso_2016/ms-word-16-corrupted-bullet-and-numbering/38c049d5-7c02-4974-8e76-b046cf1916fe
-    'Macro originally created by Doug Robbins, MVP
-    'Customized by Stefan Blom, MVP, February 2020Dim LL As ListTemplate
-    'Dim i As ListLevel
-    'For Each LL In ActiveDocument.ListTemplates
-    ' For Each i In LL.ListLevels
-    '    If i.NumberStyle <> wdListNumberStyleBullet Then
-    '     i.Font.Name = "Calibri"
-    '     i.Font.Size = 9
-    '    End If
-    ' Next i
-    'Next LL
-    'Selection.Font.Name = "Calibri"
     Selection.Font.Size = 9
+    Dim myFont As String
+    Dim myCharNum As Long
+    Dim myChar As Range
+    Dim i As Long, CharCount As Long
+    For Each myChar In ActiveDocument.Characters
+        i = i + 1
+        If Not (myChar.Font.Name = "Symbol") Then
+            myChar.Font.Name = "Calibri"
+        End If
+    Next myChar
 End Sub
-
-
 
 Sub converter_tabela_12()
     '
@@ -78,7 +71,6 @@ End Sub
 
 
 Sub converter_tabela_25()
-    '
     ' converte tabela SOMENTE DA SELEÇÃO para 25cm de largura
     Dim iTblWidth As Integer
     Dim iCount As Integer
@@ -160,14 +152,14 @@ Sub utf_para_simbolo()
     Dim myCharNum As Long
     Dim myChar As Range
     Dim i As Long, CharCount As Long
+    MsgBox "Convertendo caracteres utf8 para símbolo"
     For Each myChar In ActiveDocument.Characters
         i = i + 1
+        'If ((i Mod 100000) = 0) Then MsgBox i
         If Not (myChar.Font.Name = "Symbol") Then
-            myChar.Font.Name = "Calibri"
             mycharN = AscW(myChar.Text)
             myCharNum = mycharN And &HFFFF&
             If (mycharN > 879 And mycharN < 1024) Or (mycharN > 2200) Or (mycharN = 215) Then
-                MsgBox i
                 original = myChar.Text
                 Select Case myCharNum
                 Case &H22                        ' # FOR ALL
@@ -494,9 +486,6 @@ Sub utf_para_simbolo()
                 End Select
                 If myChar.Text <> original Then
                     myChar.Font.Name = "Symbol"
-                    'myChar.Shading.BackgroundPatternColor = RGB(255, 255, 0)
-                Else
-                    myChar.Font.Name = "Calibri"
                 End If
             End If
             End If
@@ -672,10 +661,10 @@ Sub formata_dou()
     imagens
     equacoes
     converte_rodape
-    tamanho9
-    'indent 'verificar se está funcionando
+    indent 'verificar se está funcionando
     tabs
     ordinal
+    calibri9
     diacriticos
     utf_para_simbolo
     tabelas_sobrepostas
@@ -764,3 +753,5 @@ Sub tabelas_sobrepostas_para_texto()
         Next NestedTable
     Next DocumentBodyTable
 End Sub
+
+
