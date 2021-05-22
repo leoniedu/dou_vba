@@ -1,23 +1,57 @@
-Sub calibri9()
-    Selection.WholeStory
-    Selection.Range.ListFormat.ConvertNumbersToText
-    Selection.Font.Size = 9
-    Dim myFont As String
-    Dim myCharNum As Long
-    Dim myChar As Range
-    Dim i As Long, CharCount As Long
-    For Each myChar In ActiveDocument.Characters
+Sub calibri9w()
+    Dim aWord
+    Dim i As Long
+    i = 0
+    For Each aWord In ActiveDocument.Words
         i = i + 1
-        If Not (myChar.Font.Name = "Symbol") Then
-            myChar.Font.Name = "Calibri"
+        If ((i Mod 10000) = 0) Then DoEvents
+        aWord.Font.Size = 9
+        If aWord.Font.Name <> "Symbol" Then
+            aWord.Font.Name = "Calibri"
+            Else
+            'aWord.Font.Shading.BackgroundPatternColor = RGB(255, 114, 118)
         End If
-    Next myChar
+    Next aWord
 End Sub
 
-Sub converter_tabela_12()
-    '
-    ' converter_tabela_12 Macro
-    ' converte tabela para rtf 12cm ou 25cm
+
+
+Sub calibri9p()
+    'Não funciona bem. Converte o parágrafo todo, inclusive o que é Symbol para Calibri
+    Dim aP
+    Dim i As Long
+    i = 0
+    For Each aP In ActiveDocument.Paragraphs
+        i = i + 1
+        If ((i Mod 1000) = 0) Then DoEvents
+        If aP.Range.Font.Name <> "Symbol" Then
+            'MsgBox aP.Range.Font.Name
+            aP.Range.Font.Name = "Calibri"
+            aP.Range.Font.Size = 9
+        End If
+    Next aP
+End Sub
+
+
+'Sub calibri9c()
+'    Selection.WholeStory
+'    Selection.Range.ListFormat.ConvertNumbersToText
+'    Selection.Font.Size = 9
+'    Dim myFont As String
+'    Dim myCharNum As Long
+'    Dim myChar As Range
+'    Dim i As Long, CharCount As Long
+'    For Each myChar In ActiveDocument.Characters
+'        i = i + 1
+'        If Not (myChar.Font.Name = "Symbol") Then
+'            myChar.Font.Name = "Calibri"
+'        End If
+'        'If ((i Mod 100000) = 0) Then MsgBox i
+'    Next myChar
+'End Sub
+
+Sub tabela_12()
+    ' largura da tabela 12cm
     Dim iTblWidth As Integer
     Dim iCount As Integer
     For Each oTable In ActiveDocument.Tables
@@ -70,8 +104,8 @@ Sub converter_tabela_12()
 End Sub
 
 
-Sub converter_tabela_25()
-    ' converte tabela SOMENTE DA SELEÇÃO para 25cm de largura
+Sub tabela_25()
+    ' largura da tabela SOMENTE DA SELEÇÃO para 25cm de largura
     Dim iTblWidth As Integer
     Dim iCount As Integer
     For Each oTable In Selection.Tables
@@ -129,6 +163,7 @@ Sub converte_rodape()
                     .InsertAfter " <<\nota " & i & ">> "
                     .Collapse wdCollapseStart
                     .FormattedText = RngNt.FormattedText
+                    '.FormattedText.Shading.BackgroundPatternColor = RGB(255, 114, 118)
                 End With
                 .Delete
             End With
@@ -152,10 +187,10 @@ Sub utf_para_simbolo()
     Dim myCharNum As Long
     Dim myChar As Range
     Dim i As Long, CharCount As Long
-    MsgBox "Convertendo caracteres utf8 para símbolo"
-    For Each myChar In ActiveDocument.Characters
+    For Each myChar In Selection.Characters
         i = i + 1
         'If ((i Mod 100000) = 0) Then MsgBox i
+        If ((i Mod 100000) = 0) Then DoEvents
         If Not (myChar.Font.Name = "Symbol") Then
             mycharN = AscW(myChar.Text)
             myCharNum = mycharN And &HFFFF&
@@ -486,12 +521,32 @@ Sub utf_para_simbolo()
                 End Select
                 If myChar.Text <> original Then
                     myChar.Font.Name = "Symbol"
+                    'myChar.Shading.BackgroundPatternColor = RGB(255, 114, 118)
                 End If
             End If
             End If
     Next myChar
 End Sub
 
+Sub caracteres_especiais()
+    Dim myFont As String
+    Dim myCharNum As Long
+    Dim myChar As Range
+    Dim i As Long
+    For Each myChar In ActiveDocument.Characters
+        i = i + 1
+        'If ((i Mod 100000) = 0) Then MsgBox i
+        If ((i Mod 100000) = 0) Then DoEvents
+        If Not (myChar.Font.Name = "Symbol") Then
+            mycharN = AscW(myChar.Text)
+            myCharNum = mycharN And &HFFFF&
+            If (mycharN > 255) Or (mycharN = 215) Then
+                'original = myChar.Text
+                myChar.Shading.BackgroundPatternColor = RGB(255, 114, 118)
+            End If
+            End If
+    Next myChar
+End Sub
 
 Sub ordinal()
     '
@@ -538,6 +593,37 @@ Sub ordinal()
     Selection.Find.Execute Replace:=wdReplaceAll
 End Sub
 
+Sub periods()
+    '
+    ' tabs Macro
+    ' substitui pontos
+    '
+    Selection.Find.ClearFormatting
+    Selection.Find.Replacement.ClearFormatting
+    With Selection.Find
+    ' ponto é problema às vezes, mas não dá pra identificar.
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = True
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Text = ChrW(46)
+        '.Replacement.Text = ChrW(149)
+        .Replacement.Text = "*&*"
+        .Execute Replace:=wdReplaceAll
+        .Text = "*&*"
+        .Replacement.Text = ChrW(46)
+        .Execute Replace:=wdReplaceAll
+        '.Text = ChrW(149)
+        '.Replacement.Text = ChrW(46)
+        '.Execute Replace:=wdReplaceAll
+    End With
+End Sub
+
+
 Sub tabs()
     '
     ' tabs Macro
@@ -563,7 +649,11 @@ End Sub
 
 Sub equacoes()
     Dim MathObj As Object
+    Dim result As Variant
     For Each MathObj In ActiveDocument.OMaths
+        'Options.DefaultHighlightColorIndex = wdYellow
+        MathObj.Range.Select
+        'Selection.Font.Shading.BackgroundPatternColor = RGB(255, 114, 118)
         MathObj.Remove
         MsgBox "Equação encontrada e convertida para texto."
     Next
@@ -581,6 +671,9 @@ Sub imagens()
             .Text = "^g"
             Do
                 .Replacement.Text = "<<IMAGEM " & i & " AQUI>>"
+                '.Replacement.Font.Shading.BackgroundPatternColor = RGB(255, 114, 118)
+                '.FormattedText.Shading.BackgroundPatternColor = RGB(255, 114, 118)
+                '.Replacement.Text.FormattedTextShading.BackgroundPatternColor = RGB(255, 114, 118)
                 .Execute Replace:=wdReplaceOne
                 If .Found = True Then
                     i = i + 1
@@ -604,40 +697,66 @@ ArrRepCirc = Array("â", "ê", "î", "ô", "û")
 ArrRepTilde = Array("ã", "~e", "~i", "õ", "~u")
 For Each myStoryRange In ActiveDocument.StoryRanges
     With myStoryRange.Find
-    .ClearFormatting
-    .Replacement.ClearFormatting
-    .Forward = True
-    .Wrap = wdFindContinue
-    For i = 0 To 4
-    ' agudo
-    .Text = ArrFnd(i) & ChrW(769)
-    .Replacement.Text = ArrRepAgudo(i)
-    .Execute Replace:=wdReplaceAll
-    ' agudo vietnamita
-    .Text = ArrFnd(i) & ChrW(341)
-    .Replacement.Text = ArrRepAgudo(i)
-    .Execute Replace:=wdReplaceAll
-    ' grave
-    .Text = ArrFnd(i) & ChrW(768)
-    .Replacement.Text = ArrRepGrave(i)
-    .Execute Replace:=wdReplaceAll
-    ' grave vietnamita
-    .Text = ArrFnd(i) & ChrW(340)
-    .Replacement.Text = ArrRepGrave(i)
-    .Execute Replace:=wdReplaceAll
-    ' Tilde
-    .Text = ArrFnd(i) & ChrW(771)
-    .Replacement.Text = ArrRepTilde(i)
-    .Execute Replace:=wdReplaceAll
-    ' Circunflexo
-    .Text = ArrFnd(i) & ChrW(770)
-    .Replacement.Text = ArrRepCirc(i)
-    .Execute Replace:=wdReplaceAll
-    Next i
+        .ClearFormatting
+        .Replacement.ClearFormatting
+        .Forward = True
+        .Wrap = wdFindContinue
+        For i = 0 To 4
+        ' agudo
+        .Text = ArrFnd(i) & ChrW(769)
+        .Replacement.Text = ArrRepAgudo(i)
+        .Execute Replace:=wdReplaceAll
+        ' agudo vietnamita
+        .Text = ArrFnd(i) & ChrW(341)
+        .Replacement.Text = ArrRepAgudo(i)
+        .Execute Replace:=wdReplaceAll
+        ' grave
+        .Text = ArrFnd(i) & ChrW(768)
+        .Replacement.Text = ArrRepGrave(i)
+        .Execute Replace:=wdReplaceAll
+        ' grave vietnamita
+        .Text = ArrFnd(i) & ChrW(340)
+        .Replacement.Text = ArrRepGrave(i)
+        .Execute Replace:=wdReplaceAll
+        ' Tilde
+        .Text = ArrFnd(i) & ChrW(771)
+        .Replacement.Text = ArrRepTilde(i)
+        .Execute Replace:=wdReplaceAll
+        ' Circunflexo
+        .Text = ArrFnd(i) & ChrW(770)
+        .Replacement.Text = ArrRepCirc(i)
+        .Execute Replace:=wdReplaceAll
+        Next i
+    ' hífen
+    ' 8208 não é reconhecido
+    '.Text = ChrW(45)
+    '.Replacement.Text = ChrW(8208)
+    '.Execute Replace:=wdReplaceAll
     End With
-Next myStoryRange
+    Next myStoryRange
 End Sub
 
+Sub ReplaceSmartQuotes()
+'https://www.extendoffice.com/documents/word/982-word-change-straight-quotes-to-curly-quotes.html
+Dim vFindText As Variant
+Dim vReplText As Variant
+Dim i As Long
+vFindText = Array("[^0145^0146]", "[^0147^0148]")
+vReplText = Array("^039", "^034")
+With Selection.Find
+.ClearFormatting
+.Replacement.ClearFormatting
+.Forward = True
+.Wrap = wdFindContinue
+.MatchWholeWord = True
+.MatchWildcards = True
+For i = LBound(vFindText) To UBound(vFindText)
+.Text = vFindText(i)
+.Replacement.Text = vReplText(i)
+.Execute Replace:=wdReplaceAll
+Next i
+End With
+End Sub
 
 Sub indent()
     ' formata  recuo máximo
@@ -652,25 +771,48 @@ Sub indent()
     Next
 End Sub
 
-
 Sub formata_dou()
+    formata_dou_master (0)
+End Sub
+
+Sub formata_dou_longo()
+    formata_dou_master (1)
+End Sub
+
+Sub formata_dou_master(dolong As Single)
     ' executa sub em sequência
     ' importante: acione os controles de revisão para verificar o que foi feito
-    ' TODO: mudar curly quotes por simple quotes
+    inicio = Format(Now, "yyyy-mm-dd HH:mm:ss")
+    'MsgBox "Formatando para o DOU. Início em " & inicio
     Application.ScreenUpdating = False
     imagens
     equacoes
     converte_rodape
+    ordinal
+    ReplaceSmartQuotes
+    If (dolong > 0) Then
+        Selection.WholeStory
+        calibri9p
+        DoEvents
+    Else: calibri9w
+    End If
+    DoEvents
     indent 'verificar se está funcionando
     tabs
-    ordinal
-    calibri9
     diacriticos
-    utf_para_simbolo
-    tabelas_sobrepostas
-    converter_tabela_12
+    DoEvents
+    checa_tabelas
+    DoEvents
+    'MsgBox "Utf para símbolos"
+    If (dolong > 0) Then
+        Selection.WholeStory
+        utf_para_simbolo
+        DoEvents
+    End If
+    tabela_12
     Application.ScreenUpdating = True
-    'Todo incluir message box
+    fim = Format(Now, "yyyy-mm-dd HH:mm:ss")
+    MsgBox "Formatado para o DOU. Início em " & inicio & " e fim em " & fim
 End Sub
 
 
@@ -709,40 +851,34 @@ Sub deleteLinks()
   Set oField = Nothing
 End Sub
 
-Sub reformata_tabela_12()
-'
-' reformata_tabela_12 Macro
-'
-'
-    Selection.Tables(1).Select
-    Selection.Copy
-    Selection.Delete
-    Selection.PasteAndFormat (wdFormatPlainText)
-    Selection.ConvertToTable Separator:=wdSeparateByTabs, AutoFitBehavior:=wdAutoFitFixed
-    With Selection.Tables(1)
-        .Style = "Table Grid"
-        .ApplyStyleHeadingRows = True
-        .ApplyStyleLastRow = False
-        .ApplyStyleFirstColumn = True
-        .ApplyStyleLastColumn = False
-    End With
+
+Sub finalizar()
+    For Each DocumentBodyTable In ActiveDocument.Tables
+              'MsgBox "This table contains split or merged cells."
+              DocumentBodyTable.Shading.BackgroundPatternColor = RGB(255, 255, 255)
+    Next DocumentBodyTable
 End Sub
 
-Sub tabelas_sobrepostas()
-    ' ressalta em amarelo as tabelas sobrepostas (nested tables)
+Sub checa_tabelas()
+    ' ressalta as tabelas sobrepostas (nested tables) ou com células mescladas (merged)
     ' baseado em https://stackoverflow.com/a/39329012/143377
+    ' e https://gregmaxey.com/word_tip_pages/table_cell_data_word_2003.html
     Dim DocumentBodyTable As Table
     Dim NestedTable As Table
     For Each DocumentBodyTable In ActiveDocument.Tables
+        If Not DocumentBodyTable.Uniform Then
+              'MsgBox "This table contains split or merged cells."
+              DocumentBodyTable.Shading.BackgroundPatternColor = RGB(255, 255, 0)
+        End If
         For Each NestedTable In DocumentBodyTable.Tables
                 NestedTable.Shading.BackgroundPatternColor = RGB(255, 114, 118)
-            MsgBox "Tabela sobreposta encontrada e marcada em vermelho."
+            'MsgBox "Tabela sobreposta encontrada e marcada em vermelho."
         Next NestedTable
     Next DocumentBodyTable
 End Sub
 
 Sub tabelas_sobrepostas_para_texto()
-    ' ressalta em amarelo as tabelas sobrepostas (nested tables)
+    ' ressalta as tabelas sobrepostas (nested tables)
     ' baseado em https://stackoverflow.com/a/39329012/143377
     Dim DocumentBodyTable As Table
     Dim NestedTable As Table
@@ -754,4 +890,230 @@ Sub tabelas_sobrepostas_para_texto()
     Next DocumentBodyTable
 End Sub
 
+Sub desmescla_celulas_verticais()
+    'Created by Chandraprakash [Yoh]  http://www.vbaexpress.com/forum/showthread.php?59760-Unmerging-Vertically-merged-cells
+    'Funciona em uma seleção
+    Dim i As Long, j As Long, k As Long, cols As Long, m As Long
+    Dim sData() As Variant
+    Dim oTable As Table
+    Dim oCell As Cell
+    'Dim oRng As Range
+    Dim sText As String
+    Dim sRow As String
+    Dim iRow As Long
+    'Rows of Merged and NonMerged cells in Table
+    Dim oColl1 As New Collection
+    'Row with number of merged cells in Table (Vertical Split Number)
+    Dim oColl2 As New Collection
+    'Set oTable = ActiveDocument.Tables(2)
+    For Each oTable In Selection.Tables
+        With oTable
+            'Load all the Table cell index
+            ReDim sData(1 To .Rows.Count, 1 To .Columns.Count)
+            Set oCell = .Cell(1, 1)
+            Do While Not oCell Is Nothing
+                sData(oCell.RowIndex, oCell.ColumnIndex) = oCell.RowIndex & "," & oCell.ColumnIndex
+                Set oCell = oCell.Next
+            Loop
+        '1. Mark the merged cell as "X"
+        '2. Mark the non merged cell as "A"
+        '3. Load the result for each row to Collection1
+        For i = 1 To UBound(sData)
+            sRow = ""
+            For j = 1 To UBound(sData, 2)
+                sRow = sRow & IIf(IsEmpty(sData(i, j)), "X", "A") ' & "|"
+            Next j
+            oColl1.Add sRow
+        Next i
+        For cols = 1 To oTable.Columns.Count
+            'Load one by one Row with number of merged cells in Table (Vertical Split Number)
+            Set oColl2 = Nothing
+            j = 1
+            For i = oColl1.Count To 1 Step -1
+                '"X" - Merged
+                If Mid(oColl1(i), cols, 1) = "X" Then
+                    j = j + 1
+                    k = j
+                '"A" - NotMerged
+                Else
+                    k = j
+                    j = 1
+                End If
+                If j = 1 Then oColl2.Add k
+            Next i
+            iRow = oTable.Columns(cols).Cells.Count
+            k = iRow
+            For j = 1 To oColl2.Count
+                For i = oColl2.Count To 1 Step -iRow
+                    'cols - Column Number
+                    'k - cell row number in column (cols)
+                    'j - Split number for the cell (k)
+                    'Split the cell by above attributes defined
+                    'MsgBox "cell row numer " & k & " split cell " & j
+                    oTable.Columns(cols).Cells(k).Split oColl2(j), 1
+                    '1. Enter if merged cell is split (j>1)
+                    '2. Will fill the values for split empty cell with previous merged cell value
+                    If oColl2(j) > 1 Then
+                        For m = 1 To oColl2(j) - 1
+                            oTable.Columns(cols).Cells(k + m).Range.Text = oTable.Columns(cols).Cells(k).Range.Text
+                        Next m
+                    End If
+                    k = k - 1
+                Next i
+            Next j
+        Next cols
+    End With
+    oTable.PreferredWidthType = wdPreferredWidthPoints
+    oTable.PreferredWidth = CentimetersToPoints(25)
+    oTable.PreferredWidth = CentimetersToPoints(12)
+    oTable.Style = "Tabela com grade"
+    DoEvents
+    Set oColl1 = Nothing
+    Set oColl2 = Nothing
+    Set oTable = Nothing
+    Set oCell = Nothing
+    Next oTable
+lbl_Exit:
+    Set oColl1 = Nothing
+    Set oColl2 = Nothing
+    Set oTable = Nothing
+    Set oCell = Nothing
+    Set oRng = Nothing
+    Exit Sub
+End Sub
 
+
+Sub desmescla_celulas_verticais_sem_copia()
+    'Created by Chandraprakash [Yoh]  http://www.vbaexpress.com/forum/showthread.php?59760-Unmerging-Vertically-merged-cells
+    'Funciona em uma seleção
+    Dim i As Long, j As Long, k As Long, cols As Long, m As Long
+    Dim sData() As Variant
+    Dim oTable As Table
+    Dim oCell As Cell
+    'Dim oRng As Range
+    Dim sText As String
+    Dim sRow As String
+    Dim iRow As Long
+    'Rows of Merged and NonMerged cells in Table
+    Dim oColl1 As New Collection
+    'Row with number of merged cells in Table (Vertical Split Number)
+    Dim oColl2 As New Collection
+    'Set oTable = ActiveDocument.Tables(2)
+    For Each oTable In Selection.Tables
+        With oTable
+            'Load all the Table cell index
+            ReDim sData(1 To .Rows.Count, 1 To .Columns.Count)
+            Set oCell = .Cell(1, 1)
+            Do While Not oCell Is Nothing
+                sData(oCell.RowIndex, oCell.ColumnIndex) = oCell.RowIndex & "," & oCell.ColumnIndex
+                Set oCell = oCell.Next
+            Loop
+        '1. Mark the merged cell as "X"
+        '2. Mark the non merged cell as "A"
+        '3. Load the result for each row to Collection1
+        For i = 1 To UBound(sData)
+            sRow = ""
+            For j = 1 To UBound(sData, 2)
+                sRow = sRow & IIf(IsEmpty(sData(i, j)), "X", "A") ' & "|"
+            Next j
+            oColl1.Add sRow
+        Next i
+        For cols = 1 To oTable.Columns.Count
+            'Load one by one Row with number of merged cells in Table (Vertical Split Number)
+            Set oColl2 = Nothing
+            j = 1
+            For i = oColl1.Count To 1 Step -1
+                '"X" - Merged
+                If Mid(oColl1(i), cols, 1) = "X" Then
+                    j = j + 1
+                    k = j
+                '"A" - NotMerged
+                Else
+                    k = j
+                    j = 1
+                End If
+                If j = 1 Then oColl2.Add k
+            Next i
+            iRow = oTable.Columns(cols).Cells.Count
+            k = iRow
+            For j = 1 To oColl2.Count
+                For i = oColl2.Count To 1 Step -iRow
+                    'cols - Column Number
+                    'k - cell row number in column (cols)
+                    'j - Split number for the cell (k)
+                    'Split the cell by above attributes defined
+                    oTable.Columns(cols).Cells(k).Split oColl2(j), 1
+                    '1. Enter if merged cell is split (j>1)
+                    '2. Will fill the values for split empty cell with previous merged cell value
+                    If oColl2(j) > 1 Then
+                        For m = 1 To oColl2(j) - 1
+                            'oTable.Columns(cols).Cells(k + m).Range.Text = oTable.Columns(cols).Cells(k).Range.Text
+                        Next m
+                    End If
+                    k = k - 1
+                Next i
+            Next j
+        Next cols
+    End With
+    oTable.PreferredWidthType = wdPreferredWidthPoints
+    oTable.PreferredWidth = CentimetersToPoints(25)
+    oTable.PreferredWidth = CentimetersToPoints(12)
+    'oTable.Style = "Tabela com grade"
+    DoEvents
+    Set oColl1 = Nothing
+    Set oColl2 = Nothing
+    Set oTable = Nothing
+    Set oCell = Nothing
+    Next oTable
+lbl_Exit:
+    Set oColl1 = Nothing
+    Set oColl2 = Nothing
+    Set oTable = Nothing
+    Set oCell = Nothing
+    Set oRng = Nothing
+    Exit Sub
+End Sub
+
+
+
+Sub Macro1()
+'
+' Macro1 Macro
+'
+'
+    Selection.MoveRight Unit:=wdCharacter, Count:=1, Extend:=wdExtend
+    Selection.MoveLeft Unit:=wdCharacter, Count:=1
+    Selection.TypeText Text:="002E"
+    Selection.MoveLeft Unit:=wdCharacter, Count:=4, Extend:=wdExtend
+    Selection.ToggleCharacterCode
+    Selection.Cut
+    Selection.Find.ClearFormatting
+    Selection.Find.Replacement.ClearFormatting
+    With Selection.Find
+        .Text = "."
+        .Replacement.Text = "."
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    Selection.Find.Execute
+    With Selection
+        If .Find.Forward = True Then
+            .Collapse Direction:=wdCollapseStart
+        Else
+            .Collapse Direction:=wdCollapseEnd
+        End If
+        .Find.Execute Replace:=wdReplaceOne
+        If .Find.Forward = True Then
+            .Collapse Direction:=wdCollapseEnd
+        Else
+            .Collapse Direction:=wdCollapseStart
+        End If
+        .Find.Execute
+    End With
+End Sub
