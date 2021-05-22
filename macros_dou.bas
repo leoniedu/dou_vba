@@ -775,8 +775,12 @@ Sub formata_dou()
     formata_dou_master (0)
 End Sub
 
-Sub formata_dou_longo()
+Sub formata_dou_medio()
     formata_dou_master (1)
+End Sub
+
+Sub formata_dou_longo()
+    formata_dou_master (2)
 End Sub
 
 Sub formata_dou_master(dolong As Single)
@@ -801,7 +805,10 @@ Sub formata_dou_master(dolong As Single)
     tabs
     diacriticos
     DoEvents
-    checa_tabelas
+    If (dolong > 1) Then
+        checa_tabelas (1)
+    Else: checa_tabelas (0)
+    End If
     DoEvents
     'MsgBox "Utf para símbolos"
     If (dolong > 0) Then
@@ -859,16 +866,18 @@ Sub finalizar()
     Next DocumentBodyTable
 End Sub
 
-Sub checa_tabelas()
+Sub checa_tabelas(full As Single)
     ' ressalta as tabelas sobrepostas (nested tables) ou com células mescladas (merged)
     ' baseado em https://stackoverflow.com/a/39329012/143377
     ' e https://gregmaxey.com/word_tip_pages/table_cell_data_word_2003.html
     Dim DocumentBodyTable As Table
     Dim NestedTable As Table
     For Each DocumentBodyTable In ActiveDocument.Tables
-        If Not DocumentBodyTable.Uniform Then
-              'MsgBox "This table contains split or merged cells."
-              DocumentBodyTable.Shading.BackgroundPatternColor = RGB(255, 255, 0)
+        If full > 0 Then
+            If Not DocumentBodyTable.Uniform Then
+                  'MsgBox "This table contains split or merged cells."
+                DocumentBodyTable.Shading.BackgroundPatternColor = RGB(255, 255, 0)
+            End If
         End If
         For Each NestedTable In DocumentBodyTable.Tables
                 NestedTable.Shading.BackgroundPatternColor = RGB(255, 114, 118)
@@ -1072,48 +1081,4 @@ lbl_Exit:
     Set oCell = Nothing
     Set oRng = Nothing
     Exit Sub
-End Sub
-
-
-
-Sub Macro1()
-'
-' Macro1 Macro
-'
-'
-    Selection.MoveRight Unit:=wdCharacter, Count:=1, Extend:=wdExtend
-    Selection.MoveLeft Unit:=wdCharacter, Count:=1
-    Selection.TypeText Text:="002E"
-    Selection.MoveLeft Unit:=wdCharacter, Count:=4, Extend:=wdExtend
-    Selection.ToggleCharacterCode
-    Selection.Cut
-    Selection.Find.ClearFormatting
-    Selection.Find.Replacement.ClearFormatting
-    With Selection.Find
-        .Text = "."
-        .Replacement.Text = "."
-        .Forward = True
-        .Wrap = wdFindContinue
-        .Format = False
-        .MatchCase = False
-        .MatchWholeWord = False
-        .MatchWildcards = False
-        .MatchSoundsLike = False
-        .MatchAllWordForms = False
-    End With
-    Selection.Find.Execute
-    With Selection
-        If .Find.Forward = True Then
-            .Collapse Direction:=wdCollapseStart
-        Else
-            .Collapse Direction:=wdCollapseEnd
-        End If
-        .Find.Execute Replace:=wdReplaceOne
-        If .Find.Forward = True Then
-            .Collapse Direction:=wdCollapseEnd
-        Else
-            .Collapse Direction:=wdCollapseStart
-        End If
-        .Find.Execute
-    End With
 End Sub
